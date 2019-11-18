@@ -22,15 +22,10 @@ const App: React.FC = () => {
       const socket = openSocket("http://localhost:8081");
       socket.on("dataChanged", async ({ playlistIds, op }: any) => {
         const { items } = await apiService.getVideosDataByIds(playlistIds);
-        if (op === "remove") {
-          if (selectedVideoIndex >= videos.length) {
-            setSelectedVideoIndex(undefined);
-          }
-        }
         setVideos(items);
       });
     })();
-  }, []);
+  }, [setSelectedVideoIndex]);
 
   const addVideo = async () => {
     try{
@@ -74,6 +69,7 @@ const App: React.FC = () => {
             style={{
               display: "flex",
               alignItems: "center",
+              minWidth: '800px',
               justifyContent: "center",
               border:'1px solid black',
               width: "100%",

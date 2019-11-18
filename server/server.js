@@ -24,7 +24,7 @@ const storeData = (data) => {
 
 const loadData = () => {
   try {
-    return fs.readFileSync('data/playlist.json', 'utf8')
+    return JSON.parse(fs.readFileSync('data/playlist.json', 'utf8'))
   } catch (err) {
     console.error(err)
     return false
@@ -42,6 +42,7 @@ let playlistIds = loadData() || [];
 
 app.patch("/playlist", function(req, res) {
   if(req.body.op === 'add'){
+    console.log("typeof ", typeof(playlistIds))
     playlistIds.push(req.query.videoId);
     storeData(playlistIds)
   }
