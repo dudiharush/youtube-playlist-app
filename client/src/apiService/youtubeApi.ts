@@ -1,12 +1,12 @@
 import axios from "axios";
+import { YOUTUBE_API_KEY } from "../keys";
 
-const KEY = "EnterKeyHere";
 
 export default axios.create({
   baseURL: "https://www.googleapis.com/youtube/v3/",
   params: {
     part: "snippet,contentDetails",
     maxResults: 1,
-    key: KEY
+    key: YOUTUBE_API_KEY
   }
 });
