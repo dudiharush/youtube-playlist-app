@@ -20,7 +20,7 @@ const App: React.FC = () => {
         setSelectedVideoIndex(0);
       }
       const socket = openSocket("http://localhost:8081");
-      socket.on("dataChanged", async ({ playlistIds, op }: any) => {
+      socket.on("dataChanged", async ({ playlistIds }: { playlistIds: string[]}) => {
         const { items } = await apiService.getVideosDataByIds(playlistIds);
         setVideos(items);
       });
@@ -28,13 +28,16 @@ const App: React.FC = () => {
   }, [setSelectedVideoIndex]);
 
   const addVideo = async () => {
-    try{
-    const { id: videoId } = getVideoId(inputUrl);
-    await apiService.addVideoId(videoId);
+    let videoId;
+    try {
+      const { id } = getVideoId(inputUrl);
+      videoId = id;
     }
     catch(e){
       alert('video Url format is incorrect! use this format: http://www.youtube.com/watch?v=someId')
     }
+    
+    await apiService.addVideoId(videoId);
   };
 
   const onVideoSelected = (videoId: string) => {

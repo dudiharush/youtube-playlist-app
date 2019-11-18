@@ -42,26 +42,23 @@ let playlistIds = loadData() || [];
 
 app.patch("/playlist", function(req, res) {
   if(req.body.op === 'add'){
-    console.log("typeof ", typeof(playlistIds))
     playlistIds.push(req.query.videoId);
-    storeData(playlistIds)
   }
   
   else if (req.body.op === 'remove'){
     playlistIds = playlistIds.filter(vId => vId !== req.query.videoId);
-    storeData(playlistIds)
   }
 
-  io.sockets.emit('dataChanged', {playlistIds, op:req.body.op});
-  res.send({playlistIds, op:req.body.op});
+  storeData(playlistIds)
+  io.sockets.emit('dataChanged', {playlistIds});
+  res.send({playlistIds});
 })
 
 app.get("/playlist", function(req, res) {
-  console.log(playlistIds);
   res.send(playlistIds);
 })
 
 server.listen(8081, function() {
   var port = server.address().port;
-  console.log("Example app listening on port: ", port);
+  console.log("App listening on port: ", port);
 });
