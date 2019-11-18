@@ -25,6 +25,9 @@ const App: React.FC = () => {
         async ({ playlistIds }: { playlistIds: string[] }) => {
           const { items } = await apiService.getVideosDataByIds(playlistIds);
           setVideos(items);
+          if (items.length && selectedVideoIndex === undefined) {
+            setSelectedVideoIndex(0); 
+          }
         }
       );
     })();
