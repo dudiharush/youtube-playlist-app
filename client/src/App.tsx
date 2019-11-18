@@ -1,10 +1,10 @@
 import React from "react";
 import openSocket from "socket.io-client";
-import * as apiService from "./apiService";
+import * as apiService from "./apiService/apiService";
 import "./App.css";
-import { VideoPlayer } from "./VideoPlayer";
-import { SearchBar } from "./SearchBar";
-import { PlayList } from "./PlayList";
+import { VideoPlayer } from "./components/VideoPlayer";
+import { SearchBar } from "./components/SearchBar";
+import { PlayList } from "./components/PlayList";
 const getVideoId = require("get-video-id");
 
 const App: React.FC = () => {
@@ -20,10 +20,13 @@ const App: React.FC = () => {
         setSelectedVideoIndex(0);
       }
       const socket = openSocket("http://localhost:8081");
-      socket.on("dataChanged", async ({ playlistIds }: { playlistIds: string[]}) => {
-        const { items } = await apiService.getVideosDataByIds(playlistIds);
-        setVideos(items);
-      });
+      socket.on(
+        "dataChanged",
+        async ({ playlistIds }: { playlistIds: string[] }) => {
+          const { items } = await apiService.getVideosDataByIds(playlistIds);
+          setVideos(items);
+        }
+      );
     })();
   }, [setSelectedVideoIndex]);
 
@@ -32,11 +35,12 @@ const App: React.FC = () => {
     try {
       const { id } = getVideoId(inputUrl);
       videoId = id;
+    } catch (e) {
+      alert(
+        "video Url format is incorrect! use this format: http://www.youtube.com/watch?v=someId"
+      );
     }
-    catch(e){
-      alert('video Url format is incorrect! use this format: http://www.youtube.com/watch?v=someId')
-    }
-    
+
     await apiService.addVideoId(videoId);
   };
 
@@ -54,15 +58,23 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className="App" style={{ display: "flex", height:'100vh', justifyContent:'center', alignItems:'center'}}>
-        <div style={{ display: "flex", flexDirection: "row", height:'650px'}}>
+      <div
+        className="App"
+        style={{
+          display: "flex",
+          height: "100vh",
+          justifyContent: "center",
+          alignItems: "center"
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "row", height: "650px" }}>
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               width: "500px",
               borderRight: "1px solid black",
-              border:'1px solid black'
+              border: "1px solid black"
             }}
           >
             <SearchBar onAddClick={addVideo} onInputChange={setInputUrl} />
@@ -72,11 +84,11 @@ const App: React.FC = () => {
             style={{
               display: "flex",
               alignItems: "center",
-              minWidth: '800px',
+              minWidth: "800px",
               justifyContent: "center",
-              border:'1px solid black',
+              border: "1px solid black",
               width: "100%",
-              marginInlineStart:'20px'
+              marginInlineStart: "20px"
             }}
           >
             <VideoPlayer
