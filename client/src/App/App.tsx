@@ -4,7 +4,12 @@ import * as apiService from "../apiService/apiService";
 import { VideoPlayer } from "../components/VideoPlayer";
 import { SearchBar } from "../components/SearchBar/SearchBar";
 import { Playlist } from "../components/Playlist/PlayList";
-import { AppContainerStyled, AppContentContainerStyled } from "./App.styled";
+import {
+  AppContainerStyled,
+  AppContentContainerStyled,
+  VideoPlayerContainerStyled,
+  SideBarContainerStyled
+} from "./App.styled";
 const getVideoId = require("get-video-id");
 
 const App: React.FC = () => {
@@ -43,15 +48,15 @@ const App: React.FC = () => {
         "video Url format is incorrect! use this format: http://www.youtube.com/watch?v=someId"
       );
     }
-
-    await apiService.addVideoId(videoId);
+    if (videoId) {
+      await apiService.addVideoId(videoId);
+    }
   };
 
   const onVideoSelected = (videoId: string) => {
     const selectedVideoIndex = videos.findIndex(
       (video: any) => video.id === videoId
     );
-    debugger;
     setSelectedVideoIndex(selectedVideoIndex);
   };
 
@@ -63,34 +68,16 @@ const App: React.FC = () => {
     <>
       <AppContainerStyled>
         <AppContentContainerStyled>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              width: "500px",
-              borderRight: "1px solid black",
-              border: "1px solid black"
-            }}
-          >
+          <SideBarContainerStyled>
             <SearchBar onAddClick={addVideo} onInputChange={setInputUrl} />
             <Playlist videos={videos} onVideoSelected={onVideoSelected} />
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              minWidth: "800px",
-              justifyContent: "center",
-              border: "1px solid black",
-              width: "100%",
-              marginInlineStart: "20px"
-            }}
-          >
+          </SideBarContainerStyled>
+          <VideoPlayerContainerStyled>
             <VideoPlayer
               video={videos[selectedVideoIndex]}
               onEnd={onVideoEnd}
             />
-          </div>
+          </VideoPlayerContainerStyled>
         </AppContentContainerStyled>
       </AppContainerStyled>
     </>
