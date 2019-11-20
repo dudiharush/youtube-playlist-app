@@ -16,6 +16,7 @@
     "react-scripts": "3.2.0",
     "react-youtube": "^7.9.0",
     "socket.io-client": "^2.3.0",
+    "styled-components": "^4.4.1",
     "typescript": "3.7.2",
     "youtube-duration-format": "^0.2.0"
   },
@@ -44,6 +45,7 @@
     "@types/axios": "^0.14.0",
     "@types/material-ui": "^0.21.7",
     "@types/react-youtube": "^7.6.2",
-    "@types/socket.io-client": "^1.4.32"
+    "@types/socket.io-client": "^1.4.32",
+    "@types/styled-components": "^4.4.0"
   }
 }

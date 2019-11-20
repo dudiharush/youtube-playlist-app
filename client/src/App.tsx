@@ -3,8 +3,8 @@ import openSocket from "socket.io-client";
 import * as apiService from "./apiService/apiService";
 import "./App.css";
 import { VideoPlayer } from "./components/VideoPlayer";
-import { SearchBar } from "./components/SearchBar";
-import { PlayList } from "./components/PlayList";
+import { Playlist } from "./components/Playlist/PlayList";
+import { SearchBar } from "./components/SearchBar/SearchBar";
 const getVideoId = require("get-video-id");
 
 const App: React.FC = () => {
@@ -26,12 +26,12 @@ const App: React.FC = () => {
           const { items } = await apiService.getVideosDataByIds(playlistIds);
           setVideos(items);
           if (items.length && selectedVideoIndex === undefined) {
-            setSelectedVideoIndex(0); 
+            setSelectedVideoIndex(0);
           }
         }
       );
     })();
-  }, [setSelectedVideoIndex]);
+  }, [setSelectedVideoIndex, selectedVideoIndex]);
 
   const addVideo = async () => {
     let videoId;
@@ -81,7 +81,7 @@ const App: React.FC = () => {
             }}
           >
             <SearchBar onAddClick={addVideo} onInputChange={setInputUrl} />
-            <PlayList videos={videos} onVideoSelected={onVideoSelected} />
+            <Playlist videos={videos} onVideoSelected={onVideoSelected} />
           </div>
           <div
             style={{

@@ -10,7 +10,6 @@ const opts: Options = {
   height: "390",
   width: "640",
   playerVars: {
-    // https://developers.google.com/youtube/player_parameters
     autoplay: 1
   }
 };
@@ -24,7 +23,7 @@ export const VideoPlayer = ({ video, onEnd }: VideoPlayerProps) => {
   console.log("video", video);
   return (
     <div>
-      <div className="ui embed">
+      <div>
         <YouTube
           videoId={video.id}
           opts={opts}
@@ -33,8 +32,8 @@ export const VideoPlayer = ({ video, onEnd }: VideoPlayerProps) => {
           }}
         />
       </div>
-      <div className="ui segment">
-        <h4 className="ui header">{video.snippet.title}</h4>
+      <div>
+        <h4>{video.snippet.title}</h4>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, TextField } from "@material-ui/core";
+import { TextField } from "@material-ui/core";
+import { SearchBarContainerStyled, ButtonStyled } from "./SearchBar.styled";
 interface SearchBarProps {
   onInputChange: (event: any) => void;
   onAddClick: () => void;
@@ -7,15 +8,7 @@ interface SearchBarProps {
 
 export const SearchBar = ({ onInputChange, onAddClick }: SearchBarProps) => {
   return (
-    <div
-      style={{
-        justifyContent: "center",
-        display: "flex",
-        flexDirection: "row",
-        height: "7vh",
-        marginBottom: "10px"
-      }}
-    >
+    <SearchBarContainerStyled>
       <TextField
         onChange={event => onInputChange(event.target.value)}
         id="outlined-secondary"
@@ -25,13 +18,12 @@ export const SearchBar = ({ onInputChange, onAddClick }: SearchBarProps) => {
         variant="outlined"
         color="secondary"
       />
-      <Button
-        style={{ marginTop: "6px" }}
+      <ButtonStyled
         variant="contained"
         onClick={onAddClick}
       >
         add
-      </Button>
-    </div>
+      </ButtonStyled>
+    </SearchBarContainerStyled>
   );
 };

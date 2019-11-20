@@ -1,14 +1,15 @@
 import React from "react";
-import { Video } from "./Video";
+import { Video } from "../Video/Video";
+import { PlaylistContainerStyled } from "./Playlist.styled";
 
 interface PlayListProps {
   videos: Array<any>;
   onVideoSelected: (videoId: string) => void;
 }
 
-export const PlayList = ({ videos, onVideoSelected }: PlayListProps) => {
+export const Playlist = ({ videos, onVideoSelected }: PlayListProps) => {
   return (
-    <div style={{ overflow: "scroll", height: "90vh" }}>
+    <PlaylistContainerStyled>
       {videos &&
         videos.map((v: any) => (
           <Video
@@ -17,6 +18,6 @@ export const PlayList = ({ videos, onVideoSelected }: PlayListProps) => {
             handleVideoSelect={onVideoSelected}
           />
         ))}
-    </div>
+    </PlaylistContainerStyled>
   );
 };
