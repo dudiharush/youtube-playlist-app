@@ -1,10 +1,10 @@
 import React from "react";
 import openSocket from "socket.io-client";
-import * as apiService from "./apiService/apiService";
-import "./App.css";
-import { VideoPlayer } from "./components/VideoPlayer";
-import { Playlist } from "./components/Playlist/PlayList";
-import { SearchBar } from "./components/SearchBar/SearchBar";
+import * as apiService from "../apiService/apiService";
+import { VideoPlayer } from "../components/VideoPlayer";
+import { SearchBar } from "../components/SearchBar/SearchBar";
+import { Playlist } from "../components/Playlist/PlayList";
+import { AppContainerStyled, AppContentContainerStyled } from "./App.styled";
 const getVideoId = require("get-video-id");
 
 const App: React.FC = () => {
@@ -61,16 +61,8 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div
-        className="App"
-        style={{
-          display: "flex",
-          height: "100vh",
-          justifyContent: "center",
-          alignItems: "center"
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "row", height: "650px" }}>
+      <AppContainerStyled>
+        <AppContentContainerStyled>
           <div
             style={{
               display: "flex",
@@ -99,8 +91,8 @@ const App: React.FC = () => {
               onEnd={onVideoEnd}
             />
           </div>
-        </div>
-      </div>
+        </AppContentContainerStyled>
+      </AppContainerStyled>
     </>
   );
 };
