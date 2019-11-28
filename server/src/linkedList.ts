@@ -1,23 +1,20 @@
-export interface Node {
-  status: "added" | "removed";
-  id: string;
-  videoId: string;
-  nextNodeId?: string;
-}
+import uuidv4 from "uuid/v4";
+import { NodeMap, VideoNode } from "../../shared/types";
 
-export interface NodeMap {
-  [id: string]: Node;
-}
-
-export const getLinkedList = (loadedNodeMap: NodeMap) => {
-  const nodeMap = loadedNodeMap || {};
+export const getLinkedList = (loadedNodeMap: NodeMap = {}) => {
+  const nodeMap = loadedNodeMap;
   let headId: string | undefined;
   let tailId: string | undefined;
+  let length: number;
 
   const nodesArr = Object.values(nodeMap);
-  if (nodesArr.length > 0) {
+  length = nodesArr.length;
+
+  if (length == 1) {
+    headId = tailId = nodesArr[0].id;
+  } else if (length > 1) {
     const notHeadNodes = nodesArr.reduce(
-      (acc: { [key: string]: string }, node: Node) => {
+      (acc: { [key: string]: string }, node: VideoNode) => {
         if (node.status === "added" && node.nextNodeId) {
           acc[node.nextNodeId] = "notHead";
         }
@@ -27,12 +24,9 @@ export const getLinkedList = (loadedNodeMap: NodeMap) => {
     );
 
     const headNode = nodesArr.find(
-      node =>
-        notHeadNodes.status === "added" && notHeadNodes[node.id] === undefined
+      node => node.status === "added" && notHeadNodes[node.id] === undefined
     );
     if (!headNode) {
-      console.log({ nodesArr });
-
       throw new Error("could not find a head node");
     }
     headId = headNode.id;
@@ -44,15 +38,22 @@ export const getLinkedList = (loadedNodeMap: NodeMap) => {
     tailId = curNodeId;
   }
 
-  function addNode(videoId: string) {
+  function addNode(videoId: string): string {
     const nodeId = uuidv4();
-    nodeMap[nodeId] = { id: nodeId, videoId, status: "added" };
+    nodeMap[nodeId] = {
+      id: nodeId,
+      data: { videoId },
+      updatedAt: new Date(),
+      status: "added"
+    };
     if (!headId) {
       headId = nodeId;
     } else if (tailId) {
       nodeMap[tailId].nextNodeId = nodeId;
     }
     tailId = nodeId;
+    length++;
+    return nodeId;
   }
 
   function removeNode(nodeId: string) {
@@ -77,13 +78,23 @@ export const getLinkedList = (loadedNodeMap: NodeMap) => {
       }
     }
     if (nodeMap[nodeId]) nodeMap[nodeId].status = "removed";
+    length--;
   }
 
   const getNodes = () => nodeMap;
 
+  const getHeadId = () => headId;
+
+  const getTailId = () => tailId;
+
+  const getLength = () => length;
+
   return {
     addNode,
     removeNode,
-    getNodes
+    getNodes,
+    getHeadId,
+    getTailId,
+    getLength
   };
 };

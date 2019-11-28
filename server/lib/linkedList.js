@@ -5,33 +5,40 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.getLinkedList = void 0;
 
-var getLinkedList = function getLinkedList(loadedNodeMap) {
-  var nodeMap = loadedNodeMap || {};
-  var headId;
-  var tailId;
-  var nodesArr = Object.values(nodeMap);
+var _v = _interopRequireDefault(require("uuid/v4"));
 
-  if (nodesArr.length > 0) {
-    var notHeadNodes = nodesArr.reduce(function (acc, node) {
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const getLinkedList = (loadedNodeMap = {}) => {
+  const nodeMap = loadedNodeMap;
+  let headId;
+  let tailId;
+  const nodesArr = Object.values(nodeMap);
+
+  if (nodesArr.length == 1) {
+    headId = tailId = nodesArr[0].id;
+  } else if (nodesArr.length > 1) {
+    const notHeadNodes = nodesArr.reduce((acc, node) => {
       if (node.status === "added" && node.nextNodeId) {
         acc[node.nextNodeId] = "notHead";
       }
 
       return acc;
     }, {});
-    var headNode = nodesArr.find(function (node) {
-      return notHeadNodes.status === "added" && notHeadNodes[node.id] === undefined;
+    console.log({
+      notHeadNodes
     });
+    const headNode = nodesArr.find(node => notHeadNodes.status === "added" && notHeadNodes[node.id] === undefined);
 
     if (!headNode) {
       console.log({
-        nodesArr: nodesArr
+        nodesArr
       });
       throw new Error("could not find a head node");
     }
 
     headId = headNode.id;
-    var curNodeId = headId;
+    let curNodeId = headId;
 
     while (curNodeId && nodeMap[curNodeId].nextNodeId) {
       curNodeId = nodeMap[curNodeId].nextNodeId;
@@ -41,10 +48,10 @@ var getLinkedList = function getLinkedList(loadedNodeMap) {
   }
 
   function addNode(videoId) {
-    var nodeId = uuidv4();
+    const nodeId = (0, _v.default)();
     nodeMap[nodeId] = {
       id: nodeId,
-      videoId: videoId,
+      videoId,
       status: "added"
     };
 
@@ -55,11 +62,12 @@ var getLinkedList = function getLinkedList(loadedNodeMap) {
     }
 
     tailId = nodeId;
+    return nodeId;
   }
 
   function removeNode(nodeId) {
-    var prevNodeId;
-    var curNodeId = headId;
+    let prevNodeId;
+    let curNodeId = headId;
 
     if (headId === tailId) {
       tailId = headId = undefined;
@@ -83,14 +91,18 @@ var getLinkedList = function getLinkedList(loadedNodeMap) {
     if (nodeMap[nodeId]) nodeMap[nodeId].status = "removed";
   }
 
-  var getNodes = function getNodes() {
-    return nodeMap;
-  };
+  const getNodes = () => nodeMap;
+
+  const getHeadId = () => headId;
+
+  const getTailId = () => tailId;
 
   return {
-    addNode: addNode,
-    removeNode: removeNode,
-    getNodes: getNodes
+    addNode,
+    removeNode,
+    getNodes,
+    getHeadId,
+    getTailId
   };
 };
 

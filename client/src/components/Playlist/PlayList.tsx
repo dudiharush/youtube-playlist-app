@@ -1,23 +1,41 @@
 import React from "react";
 import { Video } from "../Video/Video";
 import { PlaylistContainerStyled } from "./Playlist.styled";
+import { LinkedListData } from "../../../../shared/types";
+import { VideoDataMap } from "../../apiService/apiService";
 
 interface PlayListProps {
-  videos: Array<any>;
+  videos: VideoDataMap;
+  playlist: LinkedListData;
   onVideoSelected: (videoId: string) => void;
 }
 
-export const Playlist = ({ videos, onVideoSelected }: PlayListProps) => {
-  return (
-    <PlaylistContainerStyled>
-      {videos &&
-        videos.map((v: any) => (
+export const Playlist = ({
+  playlist: { nodes, headId },
+  videos,
+  onVideoSelected
+}: PlayListProps) => {
+  const PlaylistItems = () => {
+    const videoElements = [];
+    if (headId) {
+      let currNode = nodes[headId];
+      while (currNode) {
+        videoElements.push(
           <Video
-            key={v.id.videoId}
-            video={v}
+            key={currNode.data.videoId}
+            video={nodes[currNode.data.videoId]}
             handleVideoSelect={onVideoSelected}
           />
-        ))}
+        );
+        currNode = nodes[currNode.nextNodeId!];
+      }
+    }
+    return <>{videoElements}</>;
+  };
+
+  return (
+    <PlaylistContainerStyled>
+      <PlaylistItems />
     </PlaylistContainerStyled>
   );
 };

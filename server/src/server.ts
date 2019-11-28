@@ -3,10 +3,11 @@ import bodyParser from "body-parser";
 import http from "http";
 import path from "path";
 import socketIo from "socket.io";
-import { getLinkedList, NodeMap } from "./linkedList";
+import { getLinkedList } from "./linkedList";
 import cors from "cors";
 import fs from "fs";
 import { AddressInfo } from "net";
+import { NodeMap, LinkedListData } from "../../shared/types";
 
 var app = express();
 app.use(cors());
@@ -43,7 +44,7 @@ const loadData = () => {
   return data;
 };
 
-io.on("connection", socket => {
+io.on("connection", (socket: any) => {
   console.log("New client connected");
   socket.on("disconnect", () => {
     console.log("Client disconnected");
@@ -62,12 +63,18 @@ app.patch("/playlist", function(req, res) {
   }
 
   storeData(linkedList.getNodes());
-  io.sockets.emit("dataChanged", { playlistNodes: linkedList.getNodes() });
-  res.send({ playlistNodes: linkedList.getNodes() });
+  io.sockets.emit("dataChanged", {
+    nodes: linkedList.getNodes(),
+    headId: linkedList.getHeadId()
+  } as LinkedListData);
+  res.send();
 });
 
 app.get("/playlist", function(req, res) {
-  res.send(playlist);
+  res.send({
+    nodes: playlist,
+    headId: linkedList.getHeadId()
+  } as LinkedListData);
 });
 
 server.listen(8081, function() {
