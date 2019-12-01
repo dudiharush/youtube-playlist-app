@@ -3,7 +3,7 @@ import YouTube, { Options } from "react-youtube";
 
 interface VideoPlayerProps {
   video: any;
-  onEnd?: (videoId: string) => void;
+  onEnd?: () => void;
 }
 
 const opts: Options = {
@@ -18,19 +18,11 @@ export const VideoPlayer = ({ video, onEnd }: VideoPlayerProps) => {
   if (!video) {
     return <div>No video selected</div>;
   }
-
-  const getVideoId = (event: any) => event.target.getVideoData()["video_id"];
   console.log("video", video);
   return (
     <div>
       <div>
-        <YouTube
-          videoId={video.id}
-          opts={opts}
-          onEnd={event => {
-            onEnd && onEnd(getVideoId(event));
-          }}
-        />
+        <YouTube videoId={video.id} opts={opts} onEnd={onEnd} />
       </div>
       <div>
         <h4>{video.snippet.title}</h4>

@@ -21,13 +21,13 @@ export const addVideoId = (videoId: string) =>
     }
   );
 
-export const removeVideoId = (videoId: string) =>
+export const removeVideoId = (nodeId: string) =>
   instance.patch(
     "/playlist",
     { op: "remove" },
     {
       params: {
-        videoId
+        nodeId
       }
     }
   );
@@ -36,12 +36,15 @@ export const getLinkedListData = () =>
   instance.get<LinkedListData>("/playlist");
 
 export const getVideosDataByIds = async (videoIds: string[]) => {
-  const response = await youtubeApi.get("/videos", {
+  const {
+    data: { items }
+  } = await youtubeApi.get("/videos", {
     params: {
       id: videoIds.join()
     }
   });
-  const videos: VideoDataMap = response.data.reduce(
+
+  const videos: VideoDataMap = items.reduce(
     (videos: VideoDataMap, video: any) => {
       videos[video.id] = video;
       return videos;

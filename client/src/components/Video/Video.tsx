@@ -9,12 +9,12 @@ const ytDurationFormat = require("youtube-duration-format");
 
 interface VideoProps {
   video: any;
-  handleVideoSelect(videoId: string): void;
+  handleVideoSelect(): void;
 }
 
 export const Video = ({ video, handleVideoSelect }: VideoProps) => {
   return (
-    <VideoContainerStyled onClick={() => handleVideoSelect(video.id)}>
+    <VideoContainerStyled onClick={() => handleVideoSelect()}>
       <img
         height="70px"
         src={video.snippet.thumbnails.medium.url}

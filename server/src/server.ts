@@ -59,6 +59,7 @@ app.patch("/playlist", function(req, res) {
   if (req.body.op === "add") {
     linkedList.addNode(req.query.videoId);
   } else if (req.body.op === "remove") {
+    console.log("remove nodeId", req.query.nodeId);
     linkedList.removeNode(req.query.nodeId);
   }
 

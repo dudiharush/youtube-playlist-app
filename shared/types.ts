@@ -1,8 +1,5 @@
-export type EntityStatus = "added" | "removed";
-
 interface NodeMetadata {
   updatedAt: Date;
-  status: EntityStatus;
 }
 
 export interface Node<T> extends NodeMetadata {

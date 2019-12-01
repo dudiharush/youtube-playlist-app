@@ -15,7 +15,7 @@ export const getLinkedList = (loadedNodeMap: NodeMap = {}) => {
   } else if (length > 1) {
     const notHeadNodes = nodesArr.reduce(
       (acc: { [key: string]: string }, node: VideoNode) => {
-        if (node.status === "added" && node.nextNodeId) {
+        if (node.nextNodeId) {
           acc[node.nextNodeId] = "notHead";
         }
         return acc;
@@ -23,9 +23,7 @@ export const getLinkedList = (loadedNodeMap: NodeMap = {}) => {
       {}
     );
 
-    const headNode = nodesArr.find(
-      node => node.status === "added" && notHeadNodes[node.id] === undefined
-    );
+    const headNode = nodesArr.find(node => notHeadNodes[node.id] === undefined);
     if (!headNode) {
       throw new Error("could not find a head node");
     }
@@ -43,8 +41,7 @@ export const getLinkedList = (loadedNodeMap: NodeMap = {}) => {
     nodeMap[nodeId] = {
       id: nodeId,
       data: { videoId },
-      updatedAt: new Date(),
-      status: "added"
+      updatedAt: new Date()
     };
     if (!headId) {
       headId = nodeId;
@@ -77,7 +74,7 @@ export const getLinkedList = (loadedNodeMap: NodeMap = {}) => {
         nodeMap[prevNodeId].nextNodeId = nodeMap[curNodeId].nextNodeId;
       }
     }
-    if (nodeMap[nodeId]) nodeMap[nodeId].status = "removed";
+    if (nodeMap[nodeId]) delete nodeMap[nodeId];
     length--;
   }
 

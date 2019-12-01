@@ -18,12 +18,11 @@ import { VideoDataMap } from "../apiService/apiService";
 const getVideoId = require("get-video-id");
 
 const App: React.FC = () => {
-  const [videos, setVideos] = React.useState<VideoDataMap>({});
-  const [playlist, setPlaylist] = React.useState<LinkedListData>({
-    nodes: {},
-    headId: undefined
-  });
-  const [selectedNodeId, setSelectedNodeId] = React.useState();
+  const [appState, setAppState] = React.useState<{
+    videos: VideoDataMap;
+    playlist: LinkedListData;
+    selectedNodeId?: string;
+  }>({ videos: {}, playlist: { nodes: {} } });
   const [inputUrl, setInputUrl] = React.useState();
 
   useEffectOnce(() => {
@@ -31,10 +30,9 @@ const App: React.FC = () => {
       const playlistIds = getVideoIds(playlist);
       const videos = await apiService.getVideosDataByIds(playlistIds);
 
-      setPlaylist(playlist);
-      setVideos(videos);
-      if (playlist.headId && selectedNodeId === undefined) {
-        setSelectedNodeId(playlist.headId);
+      setAppState(state => ({ ...state, playlist, videos }));
+      if (playlist.headId && appState.selectedNodeId === undefined) {
+        setAppState(state => ({ ...state, selectedNodeId: playlist.headId }));
       }
     };
 
@@ -43,8 +41,8 @@ const App: React.FC = () => {
 
     (async () => {
       const { videos, playlist } = await apiService.getPlaylistAndVideos();
-      setVideos(videos);
-      setPlaylist(playlist);
+      debugger;
+      setAppState(state => ({ ...state, videos, playlist }));
       if (playlist.headId) {
         setSelectedNodeId(playlist.headId);
       }
@@ -53,6 +51,24 @@ const App: React.FC = () => {
       socket.off("dataChanged", updatePlaylist);
     };
   });
+
+  const setSelectedNodeId = (selectedNodeId?: string) => {
+    setAppState(state => ({ ...state, selectedNodeId }));
+  };
+
+  const getSelectedVideo = () => {
+    const { videos } = appState;
+    const selectedNode = getSelectedNode();
+    return selectedNode && videos[selectedNode.data.videoId];
+  };
+
+  const getSelectedNode = () => {
+    const {
+      selectedNodeId,
+      playlist: { nodes }
+    } = appState;
+    return selectedNodeId && nodes[selectedNodeId];
+  };
 
   const addVideo = async () => {
     let videoId;
@@ -69,8 +85,19 @@ const App: React.FC = () => {
     }
   };
 
-  const onVideoEnd = async (videoId: string) => {
-    await apiService.removeVideoId(videoId);
+  const onVideoEnd = async () => {
+    const selectedNode = getSelectedNode();
+    const nextNodeId = selectedNode && selectedNode.nextNodeId;
+    await apiService.removeVideoId(appState.selectedNodeId!);
+    setSelectedNodeId(nextNodeId!);
+  };
+
+  const removeVideo = async (nodeId: string) => {
+    const selectedNode = getSelectedNode();
+    if (selectedNode && selectedNode.id === nodeId) {
+      setSelectedNodeId(undefined);
+    }
+    await apiService.removeVideoId(nodeId);
   };
 
   return (
@@ -80,16 +107,14 @@ const App: React.FC = () => {
           <SideBarContainerStyled>
             <SearchBar onAddClick={addVideo} onInputChange={setInputUrl} />
             <Playlist
-              videos={videos}
-              playlist={playlist}
+              videos={appState.videos}
+              playlist={appState.playlist}
               onVideoSelected={setSelectedNodeId}
+              removeVideo={removeVideo}
             />
           </SideBarContainerStyled>
           <VideoPlayerContainerStyled>
-            <VideoPlayer
-              video={videos && videos[selectedNodeId]}
-              onEnd={onVideoEnd}
-            />
+            <VideoPlayer video={getSelectedVideo()} onEnd={onVideoEnd} />
           </VideoPlayerContainerStyled>
         </AppContentContainerStyled>
       </AppContainerStyled>

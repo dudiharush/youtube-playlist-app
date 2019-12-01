@@ -8,7 +8,9 @@ var _linkedList = require("./linkedList");
 
 var _faker = _interopRequireDefault(require("faker"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
 describe("linked list functions", () => {
   test.skip("it should init the list with a single node with status 'added'", () => {
@@ -48,7 +50,7 @@ describe("linked list functions", () => {
     const nodes = linkedList.getNodes();
     expect(nodes[firstId].nextNodeId).toEqual(secondId);
   });
-  test.skip("it should set a node status to 'removed' by its id", () => {
+  test.skip("it should delete a node by its id", () => {
     const node = createNode();
     const linkedList = (0, _linkedList.getLinkedList)({
       [node.id]: node
@@ -69,10 +71,7 @@ describe("linked list head and tail ids are correct", () => {
       [lastNode.id]: lastNode
     };
     const linkedList = (0, _linkedList.getLinkedList)(nodeMap);
-    const {
-      getHeadId,
-      getTailId
-    } = linkedList;
+    const { getHeadId, getTailId } = linkedList;
     expect(getHeadId()).toEqual(firstNode.id);
     expect(getTailId()).toEqual(lastNode.id);
   });
