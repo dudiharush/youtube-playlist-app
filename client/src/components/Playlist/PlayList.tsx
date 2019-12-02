@@ -1,15 +1,15 @@
 import React from "react";
 import { Video } from "../Video/Video";
 import { PlaylistContainerStyled } from "./Playlist.styled";
-import { LinkedListData } from "../../../../shared/types";
 import { VideoDataMap } from "../../apiService/apiService";
 import ListItem from "@material-ui/core/ListItem";
 import { ListItemIcon, IconButton } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
+import { PlaylistData } from "../../../../shared/video-types";
 
 interface PlayListProps {
   videos: VideoDataMap;
-  playlist: LinkedListData;
+  playlist: PlaylistData;
   onVideoSelected: (videoId: string) => void;
   removeVideo: (videoId: string) => void;
 }

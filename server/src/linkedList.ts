@@ -1,8 +1,8 @@
 import uuidv4 from "uuid/v4";
-import { NodeMap, VideoNode } from "../../shared/types";
+import { NodeMap, Node } from "../../shared/types";
 
-export const getLinkedList = (loadedNodeMap: NodeMap = {}) => {
-  const nodeMap = loadedNodeMap;
+export function getLinkedList<T>(loadedNodeMap: NodeMap<T> = {}) {
+  const nodeMap: NodeMap<T> = loadedNodeMap;
   let headId: string | undefined;
   let tailId: string | undefined;
   let length: number;
@@ -14,7 +14,7 @@ export const getLinkedList = (loadedNodeMap: NodeMap = {}) => {
     headId = tailId = nodesArr[0].id;
   } else if (length > 1) {
     const notHeadNodes = nodesArr.reduce(
-      (acc: { [key: string]: string }, node: VideoNode) => {
+      (acc: { [key: string]: string }, node) => {
         if (node.nextNodeId) {
           acc[node.nextNodeId] = "notHead";
         }
@@ -36,20 +36,76 @@ export const getLinkedList = (loadedNodeMap: NodeMap = {}) => {
     tailId = curNodeId;
   }
 
-  function addNode(videoId: string): string {
-    const nodeId = uuidv4();
-    nodeMap[nodeId] = {
-      id: nodeId,
-      data: { videoId },
+  function insertNodeAfter({
+    node,
+    afterNodeId
+  }: {
+    node: Node<T>;
+    afterNodeId: string;
+  }): void {
+    const afterNode = nodeMap[afterNodeId];
+    const nextNodeId = afterNode.nextNodeId;
+    node.nextNodeId = nextNodeId;
+    afterNode.nextNodeId = node.id;
+    if (afterNode.id === tailId) {
+      tailId = node.id;
+    }
+    addToNodeMap(node);
+  }
+
+  function addToNodeMap(node: Node<T>) {
+    nodeMap[node.id] = node;
+    length++;
+  }
+
+  function removeFromNodeMap(nodeId: string) {
+    if (nodeMap[nodeId]) {
+      delete nodeMap[nodeId];
+      length--;
+    }
+  }
+
+  function insertNodeBefore({
+    node,
+    beforeNodeId
+  }: {
+    node: Node<T>;
+    beforeNodeId: string;
+  }): void {
+    if (!headId) return;
+    if (beforeNodeId === headId) {
+      node.nextNodeId = headId;
+      headId = node.id;
+      addToNodeMap(node);
+    } else {
+      let afterNode = nodeMap[headId];
+      while (afterNode && beforeNodeId === afterNode.nextNodeId) {
+        afterNode = nodeMap[afterNode.nextNodeId];
+      }
+      if (afterNode) {
+        insertNodeAfter({ node, afterNodeId: afterNode.id });
+      }
+    }
+  }
+
+  function createNode<T>(data: T) {
+    return {
+      id: uuidv4(),
+      data,
       updatedAt: new Date()
     };
+  }
+
+  function addNode(data: T): string {
+    const node = createNode(data);
+    const nodeId = node.id;
     if (!headId) {
       headId = nodeId;
     } else if (tailId) {
       nodeMap[tailId].nextNodeId = nodeId;
     }
     tailId = nodeId;
-    length++;
+    addToNodeMap(node);
     return nodeId;
   }
 
@@ -74,8 +130,7 @@ export const getLinkedList = (loadedNodeMap: NodeMap = {}) => {
         nodeMap[prevNodeId].nextNodeId = nodeMap[curNodeId].nextNodeId;
       }
     }
-    if (nodeMap[nodeId]) delete nodeMap[nodeId];
-    length--;
+    removeFromNodeMap(nodeId);
   }
 
   const getNodes = () => nodeMap;
@@ -88,10 +143,12 @@ export const getLinkedList = (loadedNodeMap: NodeMap = {}) => {
 
   return {
     addNode,
+    insertNodeAfter,
+    insertNodeBefore,
     removeNode,
     getNodes,
     getHeadId,
     getTailId,
     getLength
   };
-};
+}

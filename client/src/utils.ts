@@ -1,6 +1,6 @@
-import { LinkedListData } from "../../shared/types";
+import { PlaylistData } from "../../shared/video-types";
 
-export const getVideoIds = ({ headId, nodes }: LinkedListData): string[] => {
+export const getVideoIds = ({ headId, nodes }: PlaylistData): string[] => {
   const videoIds = [];
   if (!headId) return [];
   let currNode = nodes[headId];

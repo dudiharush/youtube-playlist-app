@@ -1,10 +1,14 @@
 import { getLinkedList } from "./linkedList";
 import faker from "faker";
-import { VideoNode, NodeMap } from "../../shared/types";
+import {
+  VideoNodeData,
+  VideoNode,
+  VideoNodeMap
+} from "../../shared/video-types";
 
 describe("linked list functions", () => {
   test("it should not init the list", () => {
-    const linkedList = getLinkedList();
+    const linkedList = getLinkedList<VideoNodeData>();
     const { getHeadId, getTailId, getLength } = linkedList;
     expect(getLength()).toEqual(0);
     expect(getHeadId()).toBeUndefined;
@@ -12,8 +16,8 @@ describe("linked list functions", () => {
   });
 
   test("it should init the list with a single node", () => {
-    const node: VideoNode = createNode();
-    const nodeMap: NodeMap = {
+    const node = createNode();
+    const nodeMap: VideoNodeMap = {
       [node.id]: node
     };
     const linkedList = getLinkedList(nodeMap);
@@ -44,7 +48,7 @@ describe("linked list functions", () => {
     const firstNode: VideoNode = createNode();
     const lastNode: VideoNode = createNode();
     firstNode.nextNodeId = lastNode.id;
-    const nodeMap: NodeMap = {
+    const nodeMap: VideoNodeMap = {
       [firstNode.id]: firstNode,
       [lastNode.id]: lastNode
     };
@@ -95,6 +99,32 @@ describe("linked list functions", () => {
     expect(getHeadId()).toBeUndefined;
     expect(getTailId()).toBeUndefined;
     expect(getLength()).toBe(0);
+  });
+
+  test("it should insert node2 between node1 and node3", () => {
+    const node1: VideoNode = createNode();
+    const node2: VideoNode = createNode();
+    const node3: VideoNode = createNode();
+    node1.nextNodeId = node3.id;
+    const linkedList = getLinkedList({
+      [node1.id]: node1,
+      [node3.id]: node3
+    });
+    let {
+      getLength,
+      getTailId,
+      getHeadId,
+      getNodes,
+      insertNodeAfter
+    } = linkedList;
+    insertNodeAfter({ node: node2, afterNodeId: node1.id });
+    const nodes = getNodes();
+    expect(getLength()).toBe(3);
+    expect(nodes[node1.id].nextNodeId).toEqual(node2.id);
+    expect(nodes[node2.id].nextNodeId).toEqual(node3.id);
+    expect(nodes[node3.id].nextNodeId).toBeUndefined;
+    expect(getHeadId()).toEqual(node1.id);
+    expect(getTailId()).toEqual(node3.id);
   });
 });
 

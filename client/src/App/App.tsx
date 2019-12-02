@@ -12,21 +12,21 @@ import {
 } from "./App.styled";
 import { useEffectOnce } from "react-use";
 
-import { LinkedListData } from "../../../shared/types";
 import { getVideoIds } from "../utils";
 import { VideoDataMap } from "../apiService/apiService";
+import { PlaylistData } from "../../../shared/video-types";
 const getVideoId = require("get-video-id");
 
 const App: React.FC = () => {
   const [appState, setAppState] = React.useState<{
     videos: VideoDataMap;
-    playlist: LinkedListData;
+    playlist: PlaylistData;
     selectedNodeId?: string;
   }>({ videos: {}, playlist: { nodes: {} } });
   const [inputUrl, setInputUrl] = React.useState();
 
   useEffectOnce(() => {
-    const updatePlaylist = async (playlist: LinkedListData) => {
+    const updatePlaylist = async (playlist: PlaylistData) => {
       const playlistIds = getVideoIds(playlist);
       const videos = await apiService.getVideosDataByIds(playlistIds);
 

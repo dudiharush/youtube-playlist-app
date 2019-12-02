@@ -2,19 +2,15 @@ interface NodeMetadata {
   updatedAt: Date;
 }
 
-export interface Node<T> extends NodeMetadata {
+export type Node<T> = NodeMetadata & {
   id: string;
   data: T;
   nextNodeId?: string;
-}
+};
 
-type VideoNodeData = { videoId: string };
+export type NodeMap<T> = { [nodeId: string]: Node<T> };
 
-export type VideoNode = Node<VideoNodeData>;
-
-export type NodeMap = { [nodeId: string]: VideoNode };
-
-export interface LinkedListData {
-  nodes: NodeMap;
+export interface LinkedListData<T> {
+  nodes: NodeMap<T>;
   headId?: string;
 }

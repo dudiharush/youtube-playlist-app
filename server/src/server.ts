@@ -8,6 +8,12 @@ import cors from "cors";
 import fs from "fs";
 import { AddressInfo } from "net";
 import { NodeMap, LinkedListData } from "../../shared/types";
+import {
+  VideoNode,
+  VideoNodeMap,
+  PlaylistData,
+  VideoNodeData
+} from "../../shared/video-types";
 
 var app = express();
 app.use(cors());
@@ -23,9 +29,9 @@ const io = socketIo(server);
 
 const platlistPath = path.join("data", "playlist.json");
 
-const storeData = (data: NodeMap) => {
+const storeData = (videoMap: VideoNodeMap) => {
   try {
-    fs.writeFileSync(platlistPath, JSON.stringify(data));
+    fs.writeFileSync(platlistPath, JSON.stringify(videoMap));
   } catch (err) {
     console.error(err);
   }
@@ -51,13 +57,13 @@ io.on("connection", (socket: any) => {
   });
 });
 
-let playlist: NodeMap = loadData() || {};
+let playlist: VideoNodeMap = loadData() || {};
 
-let linkedList = getLinkedList(playlist);
+let linkedList = getLinkedList<VideoNodeData>(playlist);
 
 app.patch("/playlist", function(req, res) {
   if (req.body.op === "add") {
-    linkedList.addNode(req.query.videoId);
+    linkedList.addNode({ videoId: req.query.videoId });
   } else if (req.body.op === "remove") {
     console.log("remove nodeId", req.query.nodeId);
     linkedList.removeNode(req.query.nodeId);
@@ -67,7 +73,7 @@ app.patch("/playlist", function(req, res) {
   io.sockets.emit("dataChanged", {
     nodes: linkedList.getNodes(),
     headId: linkedList.getHeadId()
-  } as LinkedListData);
+  } as PlaylistData);
   res.send();
 });
 
@@ -75,7 +81,7 @@ app.get("/playlist", function(req, res) {
   res.send({
     nodes: playlist,
     headId: linkedList.getHeadId()
-  } as LinkedListData);
+  } as PlaylistData);
 });
 
 server.listen(8081, function() {

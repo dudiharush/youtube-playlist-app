@@ -1,7 +1,7 @@
 import axios from "axios";
 import youtubeApi from "./youtubeApi";
-import { LinkedListData } from "../../../shared/types";
 import { getVideoIds } from "../utils";
+import { PlaylistData } from "../../../shared/video-types";
 const instance = axios.create({
   baseURL: "http://www.localhost:8081"
 });
@@ -32,8 +32,7 @@ export const removeVideoId = (nodeId: string) =>
     }
   );
 
-export const getLinkedListData = () =>
-  instance.get<LinkedListData>("/playlist");
+export const getLinkedListData = () => instance.get<PlaylistData>("/playlist");
 
 export const getVideosDataByIds = async (videoIds: string[]) => {
   const {
@@ -62,5 +61,5 @@ export const getPlaylistAndVideos = async () => {
   const videoIds = getVideoIds({ nodes, headId });
 
   const videos = await getVideosDataByIds(videoIds);
-  return { videos, playlist: { nodes, headId } as LinkedListData };
+  return { videos, playlist: { nodes, headId } as PlaylistData };
 };
