@@ -78,13 +78,11 @@ app.patch("/playlist", function(req, res) {
     } = req.query;
     const nodes = linkedList.getNodes();
     if (positionType === "before") {
-      console.log("before");
       linkedList.moveNodeBefore({
         sourceNodeId,
         beforeNodeId: targetNodeId
       });
     } else {
-      console.log("after");
       linkedList.moveNodeAfter({
         sourceNodeId,
         afterNodeId: targetNodeId
