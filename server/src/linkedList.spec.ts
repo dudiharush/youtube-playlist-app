@@ -160,6 +160,40 @@ describe("linked list functions", () => {
   });
 });
 
+test.only("it should move node3 before node2", () => {
+  const node1: VideoNode = createNode();
+  const node2: VideoNode = createNode();
+  const node3: VideoNode = createNode();
+  const node4: VideoNode = createNode();
+  node1.nextNodeId = node2.id;
+  node2.nextNodeId = node3.id;
+  node3.nextNodeId = node4.id;
+
+  const linkedList = getLinkedList({
+    [node1.id]: node1,
+    [node2.id]: node2,
+    [node3.id]: node3,
+    [node4.id]: node4
+  });
+
+  let {
+    getLength,
+    getTailId,
+    getHeadId,
+    getNodes,
+    moveNodeBefore
+  } = linkedList;
+  moveNodeBefore({ beforeNodeId: node2.id, sourceNodeId: node3.id });
+  const nodes = getNodes();
+  expect(getLength()).toBe(4);
+  expect(nodes[node1.id].nextNodeId).toEqual(node3.id);
+  expect(nodes[node3.id].nextNodeId).toEqual(node2.id);
+  expect(nodes[node2.id].nextNodeId).toEqual(node4.id);
+  expect(nodes[node4.id].nextNodeId).toBeUndefined;
+  expect(getHeadId()).toEqual(node1.id);
+  expect(getTailId()).toEqual(node4.id);
+});
+
 function createNode(): VideoNode {
   const videoId = faker.random.uuid();
   const nodeId = faker.random.uuid();

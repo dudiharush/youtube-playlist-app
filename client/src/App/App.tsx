@@ -1,52 +1,83 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { arrayMove } from "react-movable";
 import openSocket from "socket.io-client";
+import { LinkedListData } from "../../../shared/types";
+import {
+  PlaylistData,
+  VideoNode,
+  VideoNodeData
+} from "../../../shared/video-types";
 import * as apiService from "../apiService/apiService";
-import { VideoPlayer } from "../components/VideoPlayer";
-import { SearchBar } from "../components/SearchBar/SearchBar";
+import { VideoDataMap } from "../apiService/apiService";
 import { Playlist } from "../components/Playlist/PlayList";
+import { SearchBar } from "../components/SearchBar/SearchBar";
+import { VideoPlayer } from "../components/VideoPlayer";
+import { getVideoIds } from "../utils";
 import {
   AppContainerStyled,
   AppContentContainerStyled,
-  VideoPlayerContainerStyled,
-  SideBarContainerStyled
+  SideBarContainerStyled,
+  VideoPlayerContainerStyled
 } from "./App.styled";
 
-import { getVideoIds } from "../utils";
-import { VideoDataMap } from "../apiService/apiService";
-import { PlaylistData } from "../../../shared/video-types";
-import { PositionType } from "../../../shared/types";
 const getVideoId = require("get-video-id");
 
 const App: React.FC = () => {
   const [appState, setAppState] = React.useState<{
     videos: VideoDataMap;
     playlist: PlaylistData;
+    playlistArray: VideoNode[];
     selectedNodeId?: string;
-  }>({ videos: {}, playlist: { nodes: {} } });
+  }>({ videos: {}, playlist: { nodes: {} }, playlistArray: [] });
   const [inputUrl, setInputUrl] = React.useState();
 
-  React.useEffect(() => {
-    const updatePlaylist = async (playlist: PlaylistData) => {
+  const updatePlaylist = useCallback(
+    async (playlist: PlaylistData) => {
       const playlistIds = getVideoIds(playlist);
       const videos = await apiService.getVideosDataByIds(playlistIds);
+      debugger;
       if (playlist.headId && appState.selectedNodeId === undefined) {
-        setAppState({ selectedNodeId: playlist.headId, playlist, videos });
+        setAppState({
+          selectedNodeId: playlist.headId,
+          playlist,
+          videos,
+          playlistArray: getNodeArray(playlist)
+        });
       } else {
-        setAppState(state => ({ ...state, playlist, videos }));
+        setAppState(state => ({
+          ...state,
+          playlist,
+          videos,
+          playlistArray: getNodeArray(playlist)
+        }));
       }
-    };
+    },
+    [appState.selectedNodeId]
+  );
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
     const socket = openSocket("http://localhost:8081");
     socket.on("dataChanged", updatePlaylist);
 
-    (async () => {
-      const { videos, playlist } = await apiService.getPlaylistAndVideos();
-      setAppState({ playlist, videos, selectedNodeId: playlist.headId });
-    })();
+    if (!isMounted) {
+      (async () => {
+        const { videos, playlist } = await apiService.getPlaylistAndVideos();
+        debugger;
+        setAppState({
+          playlist,
+          videos,
+          playlistArray: getNodeArray(playlist),
+          selectedNodeId: playlist.headId
+        });
+      })();
+      setIsMounted(true);
+    }
+
     return () => {
       socket.off("dataChanged", updatePlaylist);
     };
-  }, [appState.selectedNodeId]);
+  }, [isMounted, updatePlaylist]);
 
   const setSelectedNodeId = (selectedNodeId?: string) => {
     setAppState(state => ({ ...state, selectedNodeId }));
@@ -64,6 +95,21 @@ const App: React.FC = () => {
       playlist: { nodes }
     } = appState;
     return selectedNodeId && nodes[selectedNodeId];
+  };
+
+  const getNodeArray = ({
+    nodes,
+    headId
+  }: LinkedListData<VideoNodeData>): VideoNode[] => {
+    const nodeArray = [];
+    if (headId) {
+      let currNode = nodes[headId];
+      while (currNode) {
+        nodeArray.push(currNode);
+        currNode = nodes[currNode.nextNodeId!];
+      }
+    }
+    return nodeArray;
   };
 
   const addVideo = async () => {
@@ -96,19 +142,22 @@ const App: React.FC = () => {
     await apiService.removeVideoId(nodeId);
   };
 
-  const changeItemPosition = async ({
-    draggedItemId,
-    targetItemId,
-    positionType
+  const updatePlaylistArray = async ({
+    oldIndex,
+    newIndex
   }: {
-    draggedItemId: string;
-    targetItemId: string;
-    positionType: PositionType;
+    oldIndex: number;
+    newIndex: number;
   }) => {
+    const { playlistArray } = appState;
+    setAppState(state => ({
+      ...state,
+      playlistArray: arrayMove(state.playlistArray, oldIndex, newIndex)
+    }));
     await apiService.moveVideo({
-      sourceNodeId: draggedItemId,
-      targetNodeId: targetItemId,
-      positionType
+      sourceNodeId: playlistArray[oldIndex].id,
+      targetNodeId: playlistArray[newIndex].id,
+      positionType: oldIndex > newIndex ? "before" : "after"
     });
   };
 
@@ -120,10 +169,10 @@ const App: React.FC = () => {
             <SearchBar onAddClick={addVideo} onInputChange={setInputUrl} />
             <Playlist
               videos={appState.videos}
-              playlist={appState.playlist}
+              playlistArray={appState.playlistArray}
               onVideoSelected={setSelectedNodeId}
               removeVideo={removeVideo}
-              changeItemPosition={changeItemPosition}
+              updatePlaylistArray={updatePlaylistArray}
             />
           </SideBarContainerStyled>
           <VideoPlayerContainerStyled>

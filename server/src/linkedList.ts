@@ -80,7 +80,11 @@ export function getLinkedList<T>(loadedNodeMap: NodeMap<T> = {}) {
       headId = sourceNode.id;
     } else {
       let afterNode = nodeMap[headId];
-      while (afterNode && beforeNodeId === afterNode.nextNodeId) {
+      while (
+        afterNode &&
+        afterNode.nextNodeId &&
+        beforeNodeId !== afterNode.nextNodeId
+      ) {
         afterNode = nodeMap[afterNode.nextNodeId];
       }
       if (afterNode) {

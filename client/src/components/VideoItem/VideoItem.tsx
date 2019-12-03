@@ -4,15 +4,15 @@ import {
   VideoDetailsContainerStyled,
   VideoTextStyled,
   VideoSeparatorStyled
-} from "./Video.styled";
+} from "./VideoItem.styled";
 const ytDurationFormat = require("youtube-duration-format");
 
-interface VideoProps {
+interface VideoItemProps {
   video: any;
   handleVideoSelect(): void;
 }
 
-export const Video = ({ video, handleVideoSelect }: VideoProps) => {
+export const VideoItem = ({ video, handleVideoSelect }: VideoItemProps) => {
   return (
     <VideoContainerStyled onClick={() => handleVideoSelect()}>
       <img

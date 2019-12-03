@@ -1,27 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { Video } from "../Video/Video";
+import React from "react";
+import { VideoItem } from "../VideoItem/VideoItem";
 import { PlaylistContainerStyled } from "./Playlist.styled";
 import { VideoDataMap } from "../../apiService/apiService";
 import ListItem from "@material-ui/core/ListItem";
 import { ListItemIcon, IconButton } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
-import { PlaylistData, VideoNode } from "../../../../shared/video-types";
-import { List, arrayMove } from "react-movable";
-import { PositionType } from "../../../../shared/types";
+import { VideoNode } from "../../../../shared/video-types";
+import { List } from "react-movable";
 
 interface PlayListProps {
   videos: VideoDataMap;
-  playlist: PlaylistData;
+  playlistArray: VideoNode[];
   onVideoSelected: (itemId: string) => void;
   removeVideo: (itemId: string) => void;
-  changeItemPosition: ({
-    draggedItemId,
-    targetItemId,
-    positionType
+  updatePlaylistArray: ({
+    oldIndex,
+    newIndex
   }: {
-    draggedItemId: string;
-    targetItemId: string;
-    positionType: PositionType;
+    oldIndex: number;
+    newIndex: number;
   }) => void;
 }
 
@@ -48,7 +45,7 @@ const PlaylistItem = ({
         <DeleteIcon />
       </IconButton>
     </ListItemIcon>
-    <Video
+    <VideoItem
       key={itemId}
       video={video}
       handleVideoSelect={() => onVideoSelected(itemId)}
@@ -57,35 +54,21 @@ const PlaylistItem = ({
 );
 
 export const Playlist = ({
-  playlist: { nodes, headId },
   videos,
   onVideoSelected,
   removeVideo,
-  changeItemPosition
+  updatePlaylistArray,
+  playlistArray
 }: PlayListProps) => {
-  const [items, setItems] = useState<VideoNode[]>([]);
-  useEffect(() => {
-    if (headId) {
-      const nodeArray = [];
-      let currNode = nodes[headId];
-      while (currNode) {
-        nodeArray.push(currNode);
-        currNode = nodes[currNode.nextNodeId!];
-      }
-      setItems(nodeArray);
-    }
-  }, [headId, nodes]);
   return (
     <List
-      values={items}
+      values={playlistArray}
       onChange={({ oldIndex, newIndex }) => {
-        const draggedItemId = items[oldIndex].id;
-        const targetItemId = items[newIndex].id;
-        const positionType: PositionType =
-          oldIndex > newIndex ? "before" : "after";
-        setItems(arrayMove(items, oldIndex, newIndex));
-
-        changeItemPosition({ draggedItemId, targetItemId, positionType });
+        // const draggedItemId = playlistArray[oldIndex].id;
+        // const targetItemId = playlistArray[newIndex].id;
+        // const positionType: PositionType =
+        //   oldIndex > newIndex ? "before" : "after";
+        updatePlaylistArray({ oldIndex, newIndex });
       }}
       renderList={({ children, props }) => (
         <PlaylistContainerStyled {...props}>{children}</PlaylistContainerStyled>
