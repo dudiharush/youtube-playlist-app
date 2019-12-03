@@ -10,11 +10,11 @@ import {
   VideoPlayerContainerStyled,
   SideBarContainerStyled
 } from "./App.styled";
-import { useEffectOnce } from "react-use";
 
 import { getVideoIds } from "../utils";
 import { VideoDataMap } from "../apiService/apiService";
 import { PlaylistData } from "../../../shared/video-types";
+import { PositionType } from "../../../shared/types";
 const getVideoId = require("get-video-id");
 
 const App: React.FC = () => {
@@ -25,14 +25,14 @@ const App: React.FC = () => {
   }>({ videos: {}, playlist: { nodes: {} } });
   const [inputUrl, setInputUrl] = React.useState();
 
-  useEffectOnce(() => {
+  React.useEffect(() => {
     const updatePlaylist = async (playlist: PlaylistData) => {
       const playlistIds = getVideoIds(playlist);
       const videos = await apiService.getVideosDataByIds(playlistIds);
-
-      setAppState(state => ({ ...state, playlist, videos }));
       if (playlist.headId && appState.selectedNodeId === undefined) {
-        setAppState(state => ({ ...state, selectedNodeId: playlist.headId }));
+        setAppState({ selectedNodeId: playlist.headId, playlist, videos });
+      } else {
+        setAppState(state => ({ ...state, playlist, videos }));
       }
     };
 
@@ -41,16 +41,12 @@ const App: React.FC = () => {
 
     (async () => {
       const { videos, playlist } = await apiService.getPlaylistAndVideos();
-      debugger;
-      setAppState(state => ({ ...state, videos, playlist }));
-      if (playlist.headId) {
-        setSelectedNodeId(playlist.headId);
-      }
+      setAppState({ playlist, videos, selectedNodeId: playlist.headId });
     })();
     return () => {
       socket.off("dataChanged", updatePlaylist);
     };
-  });
+  }, [appState.selectedNodeId]);
 
   const setSelectedNodeId = (selectedNodeId?: string) => {
     setAppState(state => ({ ...state, selectedNodeId }));
@@ -100,6 +96,22 @@ const App: React.FC = () => {
     await apiService.removeVideoId(nodeId);
   };
 
+  const changeItemPosition = async ({
+    draggedItemId,
+    targetItemId,
+    positionType
+  }: {
+    draggedItemId: string;
+    targetItemId: string;
+    positionType: PositionType;
+  }) => {
+    await apiService.moveVideo({
+      sourceNodeId: draggedItemId,
+      targetNodeId: targetItemId,
+      positionType
+    });
+  };
+
   return (
     <>
       <AppContainerStyled>
@@ -111,6 +123,7 @@ const App: React.FC = () => {
               playlist={appState.playlist}
               onVideoSelected={setSelectedNodeId}
               removeVideo={removeVideo}
+              changeItemPosition={changeItemPosition}
             />
           </SideBarContainerStyled>
           <VideoPlayerContainerStyled>

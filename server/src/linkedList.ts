@@ -36,21 +36,21 @@ export function getLinkedList<T>(loadedNodeMap: NodeMap<T> = {}) {
     tailId = curNodeId;
   }
 
-  function insertNodeAfter({
-    node,
+  function moveNodeAfter({
+    sourceNodeId,
     afterNodeId
   }: {
-    node: Node<T>;
+    sourceNodeId: string;
     afterNodeId: string;
   }): void {
     const afterNode = nodeMap[afterNodeId];
-    const nextNodeId = afterNode.nextNodeId;
-    node.nextNodeId = nextNodeId;
-    afterNode.nextNodeId = node.id;
+    const sourceNode = nodeMap[sourceNodeId];
+    removeNode(sourceNodeId, false);
+    sourceNode.nextNodeId = afterNode.nextNodeId;
+    afterNode.nextNodeId = sourceNode.id;
     if (afterNode.id === tailId) {
-      tailId = node.id;
+      tailId = sourceNode.id;
     }
-    addToNodeMap(node);
   }
 
   function addToNodeMap(node: Node<T>) {
@@ -65,25 +65,29 @@ export function getLinkedList<T>(loadedNodeMap: NodeMap<T> = {}) {
     }
   }
 
-  function insertNodeBefore({
-    node,
+  function moveNodeBefore({
+    sourceNodeId,
     beforeNodeId
   }: {
-    node: Node<T>;
+    sourceNodeId: string;
     beforeNodeId: string;
   }): void {
     if (!headId) return;
+    const sourceNode = nodeMap[sourceNodeId];
     if (beforeNodeId === headId) {
-      node.nextNodeId = headId;
-      headId = node.id;
-      addToNodeMap(node);
+      removeNode(sourceNode.id, false);
+      sourceNode.nextNodeId = headId;
+      headId = sourceNode.id;
     } else {
       let afterNode = nodeMap[headId];
       while (afterNode && beforeNodeId === afterNode.nextNodeId) {
         afterNode = nodeMap[afterNode.nextNodeId];
       }
       if (afterNode) {
-        insertNodeAfter({ node, afterNodeId: afterNode.id });
+        moveNodeAfter({
+          sourceNodeId,
+          afterNodeId: afterNode.id
+        });
       }
     }
   }
@@ -109,7 +113,7 @@ export function getLinkedList<T>(loadedNodeMap: NodeMap<T> = {}) {
     return nodeId;
   }
 
-  function removeNode(nodeId: string) {
+  function removeNode(nodeId: string, hardRemove = true) {
     let prevNodeId;
     let curNodeId = headId;
 
@@ -130,7 +134,10 @@ export function getLinkedList<T>(loadedNodeMap: NodeMap<T> = {}) {
         nodeMap[prevNodeId].nextNodeId = nodeMap[curNodeId].nextNodeId;
       }
     }
-    removeFromNodeMap(nodeId);
+
+    if (hardRemove) {
+      removeFromNodeMap(nodeId);
+    }
   }
 
   const getNodes = () => nodeMap;
@@ -143,8 +150,8 @@ export function getLinkedList<T>(loadedNodeMap: NodeMap<T> = {}) {
 
   return {
     addNode,
-    insertNodeAfter,
-    insertNodeBefore,
+    moveNodeAfter,
+    moveNodeBefore,
     removeNode,
     getNodes,
     getHeadId,

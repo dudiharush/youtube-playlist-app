@@ -7,7 +7,7 @@ import { getLinkedList } from "./linkedList";
 import cors from "cors";
 import fs from "fs";
 import { AddressInfo } from "net";
-import { NodeMap, LinkedListData } from "../../shared/types";
+import { NodeMap, LinkedListData, PositionType } from "../../shared/types";
 import {
   VideoNode,
   VideoNodeMap,
@@ -65,8 +65,31 @@ app.patch("/playlist", function(req, res) {
   if (req.body.op === "add") {
     linkedList.addNode({ videoId: req.query.videoId });
   } else if (req.body.op === "remove") {
-    console.log("remove nodeId", req.query.nodeId);
     linkedList.removeNode(req.query.nodeId);
+  } else if (req.body.op === "move") {
+    const {
+      sourceNodeId,
+      targetNodeId,
+      positionType
+    }: {
+      positionType: PositionType;
+      sourceNodeId: string;
+      targetNodeId: string;
+    } = req.query;
+    const nodes = linkedList.getNodes();
+    if (positionType === "before") {
+      console.log("before");
+      linkedList.moveNodeBefore({
+        sourceNodeId,
+        beforeNodeId: targetNodeId
+      });
+    } else {
+      console.log("after");
+      linkedList.moveNodeAfter({
+        sourceNodeId,
+        afterNodeId: targetNodeId
+      });
+    }
   }
 
   storeData(linkedList.getNodes());

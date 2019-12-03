@@ -2,6 +2,7 @@ import axios from "axios";
 import youtubeApi from "./youtubeApi";
 import { getVideoIds } from "../utils";
 import { PlaylistData } from "../../../shared/video-types";
+import { PositionType } from "../../../shared/types";
 const instance = axios.create({
   baseURL: "http://www.localhost:8081"
 });
@@ -28,6 +29,27 @@ export const removeVideoId = (nodeId: string) =>
     {
       params: {
         nodeId
+      }
+    }
+  );
+
+export const moveVideo = ({
+  sourceNodeId,
+  targetNodeId,
+  positionType
+}: {
+  sourceNodeId: string;
+  targetNodeId: string;
+  positionType: PositionType;
+}) =>
+  instance.patch(
+    "/playlist",
+    { op: "move" },
+    {
+      params: {
+        sourceNodeId,
+        targetNodeId,
+        positionType
       }
     }
   );
