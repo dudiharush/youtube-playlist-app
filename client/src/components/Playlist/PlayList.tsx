@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Video } from "../Video/Video";
 import { PlaylistContainerStyled } from "./Playlist.styled";
 import { VideoDataMap } from "../../apiService/apiService";
@@ -6,7 +6,7 @@ import ListItem from "@material-ui/core/ListItem";
 import { ListItemIcon, IconButton } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { PlaylistData, VideoNode } from "../../../../shared/video-types";
-import { List } from "react-movable";
+import { List, arrayMove } from "react-movable";
 import { PositionType } from "../../../../shared/types";
 
 interface PlayListProps {
@@ -63,15 +63,18 @@ export const Playlist = ({
   removeVideo,
   changeItemPosition
 }: PlayListProps) => {
-  const items: VideoNode[] = [];
-  if (headId) {
-    let currNode = nodes[headId];
-    while (currNode) {
-      items.push(currNode);
-      currNode = nodes[currNode.nextNodeId!];
+  const [items, setItems] = useState<VideoNode[]>([]);
+  useEffect(() => {
+    if (headId) {
+      const nodeArray = [];
+      let currNode = nodes[headId];
+      while (currNode) {
+        nodeArray.push(currNode);
+        currNode = nodes[currNode.nextNodeId!];
+      }
+      setItems(nodeArray);
     }
-  }
-
+  }, [headId, nodes]);
   return (
     <List
       values={items}
@@ -80,6 +83,7 @@ export const Playlist = ({
         const targetItemId = items[newIndex].id;
         const positionType: PositionType =
           oldIndex > newIndex ? "before" : "after";
+        setItems(arrayMove(items, oldIndex, newIndex));
 
         changeItemPosition({ draggedItemId, targetItemId, positionType });
       }}
