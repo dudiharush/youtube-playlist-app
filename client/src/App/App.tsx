@@ -80,6 +80,7 @@ const App: React.FC = () => {
   }, [isMounted, updatePlaylist]);
 
   const setSelectedNodeId = (selectedNodeId?: string) => {
+    debugger;
     setAppState(state => ({ ...state, selectedNodeId }));
   };
 
@@ -94,6 +95,7 @@ const App: React.FC = () => {
       selectedNodeId,
       playlist: { nodes }
     } = appState;
+    debugger;
     return selectedNodeId && nodes[selectedNodeId];
   };
 
@@ -149,6 +151,7 @@ const App: React.FC = () => {
     oldIndex: number;
     newIndex: number;
   }) => {
+    debugger;
     const { playlistArray } = appState;
     setAppState(state => ({
       ...state,

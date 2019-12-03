@@ -5,7 +5,7 @@ export const VideoContainerStyled = styled.div`
   margin-bottom: 10px;
 `;
 
-export const VideoDetailsContainerStyled = styled.div`
+export const VideoInfoContainerStyled = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
