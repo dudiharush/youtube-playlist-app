@@ -14,5 +14,3 @@ export interface LinkedListData<T> {
   nodes: NodeMap<T>;
   headId?: string;
 }
-
-export type PositionType = "before" | "after";

@@ -7,12 +7,11 @@ import { getLinkedList } from "./linkedList";
 import cors from "cors";
 import fs from "fs";
 import { AddressInfo } from "net";
-import { NodeMap, LinkedListData, PositionType } from "../../shared/types";
 import {
-  VideoNode,
   VideoNodeMap,
   PlaylistData,
-  VideoNodeData
+  VideoNodeData,
+  PositionType
 } from "../../shared/video-types";
 
 var app = express();

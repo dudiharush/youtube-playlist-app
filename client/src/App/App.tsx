@@ -1,12 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { arrayMove } from "react-movable";
 import openSocket from "socket.io-client";
-import { LinkedListData } from "../../../shared/types";
-import {
-  PlaylistData,
-  VideoNode,
-  VideoNodeData
-} from "../../../shared/video-types";
+import { PlaylistData, VideoNode } from "../../../shared/video-types";
 import * as apiService from "../apiService/apiService";
 import { VideoDataMap } from "../apiService/apiService";
 import { Playlist } from "../components/Playlist/PlayList";
@@ -99,10 +94,7 @@ const App: React.FC = () => {
     return selectedNodeId && nodes[selectedNodeId];
   };
 
-  const getNodeArray = ({
-    nodes,
-    headId
-  }: LinkedListData<VideoNodeData>): VideoNode[] => {
+  const getNodeArray = ({ nodes, headId }: PlaylistData): VideoNode[] => {
     const nodeArray = [];
     if (headId) {
       let currNode = nodes[headId];

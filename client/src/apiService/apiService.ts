@@ -1,8 +1,7 @@
 import axios from "axios";
 import youtubeApi from "./youtubeApi";
 import { getVideoIds } from "../utils";
-import { PlaylistData } from "../../../shared/video-types";
-import { PositionType } from "../../../shared/types";
+import { PlaylistData, PositionType } from "../../../shared/video-types";
 const instance = axios.create({
   baseURL: "http://www.localhost:8081"
 });
