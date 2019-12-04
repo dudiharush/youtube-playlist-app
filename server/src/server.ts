@@ -3,16 +3,16 @@ import bodyParser from "body-parser";
 import http from "http";
 import path from "path";
 import socketIo from "socket.io";
-import { getLinkedList } from "./linkedList";
 import cors from "cors";
 import fs from "fs";
 import { AddressInfo } from "net";
 import {
   VideoNodeMap,
   PlaylistData,
-  VideoNodeData,
   PositionType
 } from "../../shared/video-types";
+
+import { fromNodes } from "linked-list-normalized";
 
 var app = express();
 app.use(cors());
@@ -58,7 +58,7 @@ io.on("connection", (socket: any) => {
 
 let playlist: VideoNodeMap = loadData() || {};
 
-let linkedList = getLinkedList<VideoNodeData>(playlist);
+let linkedList = fromNodes(playlist);
 
 app.patch("/playlist", function(req, res) {
   if (req.body.op === "add") {

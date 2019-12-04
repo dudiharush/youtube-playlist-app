@@ -1,4 +1,4 @@
-import { Node, NodeMap, LinkedListData } from "../server/src/types";
+import { Node, NodeMap, LinkedListData } from "linked-list-normalized";
 
 export type VideoNodeData = { videoId: string };
 export type VideoNode = Node<VideoNodeData>;
