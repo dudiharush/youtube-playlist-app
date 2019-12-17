@@ -12,7 +12,8 @@ playlist.json
 /coverage
 
 # production
-/build
+/client/build
+/server/lib
 
 # misc
 .DS_Store
