@@ -78,9 +78,17 @@ export const getPlaylistAndVideos = async () => {
   const {
     data: { nodes, headId }
   } = await getLinkedListData();
+  debugger;
 
   const videoIds = getVideoIds({ nodes, headId });
 
-  const videos = await getVideosDataByIds(videoIds);
+  let videos = {};
+  try {
+    videos = await getVideosDataByIds(videoIds);
+
+  }catch(err){
+    console.log("youtube API KEY related error: ", err);
+  }
+  
   return { videos, playlist: { nodes, headId } as PlaylistData };
 };

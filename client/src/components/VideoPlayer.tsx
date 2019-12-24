@@ -17,7 +17,6 @@ const opts: Options = {
 };
 
 export const VideoPlayer = ({ video, onEnd }: VideoPlayerProps) => {
-  debugger;
   if (!video) {
     return <div>No video selected</div>;
   }

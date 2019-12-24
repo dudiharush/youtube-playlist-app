@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useReducer } from "react";
 import { arrayMove } from "react-movable";
 import openSocket from "socket.io-client";
 import { PlaylistData, VideoNode } from "../../../shared/video-types";
@@ -17,20 +17,30 @@ import {
 
 const getVideoId = require("get-video-id");
 
+const reducer = (prevState: any, updatedProperty: any) => ({
+  ...prevState,
+  ...updatedProperty,
+});
+
+interface AppState {
+  selectedNodeId?: string;
+  videos: VideoDataMap;
+  playlist: PlaylistData;
+  playlistArray: VideoNode[];
+}
+const initState: AppState = { videos: {}, playlist: { nodes: {} }, playlistArray: [] };
+
 const App: React.FC = () => {
-  const [appState, setAppState] = React.useState<{
-    videos: VideoDataMap;
-    playlist: PlaylistData;
-    playlistArray: VideoNode[];
-    selectedNodeId?: string;
-  }>({ videos: {}, playlist: { nodes: {} }, playlistArray: [] });
-  const [inputUrl, setInputUrl] = React.useState();
+  
+  const [appState, setAppStateInternal] = useState(initState);
+  const setAppState = (newState: Partial<AppState>) => setAppStateInternal(prevState => ({...prevState, ...newState}))
+
+  const [inputUrl, setInputUrl] = useState();
 
   const updatePlaylist = useCallback(
     async (playlist: PlaylistData) => {
       const playlistIds = getVideoIds(playlist);
       const videos = await apiService.getVideosDataByIds(playlistIds);
-      debugger;
       if (playlist.headId && appState.selectedNodeId === undefined) {
         setAppState({
           selectedNodeId: playlist.headId,
@@ -39,12 +49,11 @@ const App: React.FC = () => {
           playlistArray: getNodeArray(playlist)
         });
       } else {
-        setAppState(state => ({
-          ...state,
+        setAppState({
           playlist,
           videos,
           playlistArray: getNodeArray(playlist)
-        }));
+        });
       }
     },
     [appState.selectedNodeId]
@@ -58,7 +67,6 @@ const App: React.FC = () => {
     if (!isMounted) {
       (async () => {
         const { videos, playlist } = await apiService.getPlaylistAndVideos();
-        debugger;
         setAppState({
           playlist,
           videos,
@@ -75,8 +83,7 @@ const App: React.FC = () => {
   }, [isMounted, updatePlaylist]);
 
   const setSelectedNodeId = (selectedNodeId?: string) => {
-    debugger;
-    setAppState(state => ({ ...state, selectedNodeId }));
+    setAppState({selectedNodeId});
   };
 
   const getSelectedVideo = () => {
@@ -90,7 +97,6 @@ const App: React.FC = () => {
       selectedNodeId,
       playlist: { nodes }
     } = appState;
-    debugger;
     return selectedNodeId && nodes[selectedNodeId];
   };
 
@@ -143,12 +149,10 @@ const App: React.FC = () => {
     oldIndex: number;
     newIndex: number;
   }) => {
-    debugger;
     const { playlistArray } = appState;
-    setAppState(state => ({
-      ...state,
-      playlistArray: arrayMove(state.playlistArray, oldIndex, newIndex)
-    }));
+    setAppState({
+      playlistArray: arrayMove(appState.playlistArray, oldIndex, newIndex)
+    });
     await apiService.moveVideo({
       sourceNodeId: playlistArray[oldIndex].id,
       targetNodeId: playlistArray[newIndex].id,

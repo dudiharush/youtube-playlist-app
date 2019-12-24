@@ -26,7 +26,7 @@ app.use(
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const platlistPath = path.join("data", "playlist.json");
+const platlistPath = path.join(__dirname, "..", "data", "playlist.json");
 
 const storeData = (videoMap: VideoNodeMap) => {
   try {
@@ -75,13 +75,13 @@ app.patch("/playlist", function(req, res) {
       sourceNodeId: string;
       targetNodeId: string;
     } = req.query;
-    const nodes = linkedList.getNodes();
     if (positionType === "before") {
       linkedList.moveNodeBefore({
         sourceNodeId,
         beforeNodeId: targetNodeId
       });
     } else {
+      
       linkedList.moveNodeAfter({
         sourceNodeId,
         afterNodeId: targetNodeId
